@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+    mariadb:
+        image: mariadb:11
+        container_name: mariadb-main
+        restart: unless-stopped
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+        volumes:
+            - ./data/mariadb:/var/lib/mysql
+        networks:
+            - proxy-network
+
+    # postgres:
+    #     image: postgres:16
+    #     container_name: postgres-main
+    #     restart: unless-stopped
+    #     environment:
+    #         POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    #     volumes:
+    #         - ./data/postgres:/var/lib/postgresql/data
+    #     networks:
+    #         - proxy-network
+
+    npm:
+        image: jc21/nginx-proxy-manager:latest
+        container_name: nginx-proxy-manager
+        restart: unless-stopped
+        ports:
+            - "80:80"
+            - "443:443"
+            - "81:81"  # interface d'administration
+        volumes:
+            - ./data/nginx-proxy-manager:/data
+            - ./data/letsencrypt:/etc/letsencrypt
+        networks:
+            - proxy-network
+
+networks:
+    proxy-network:
+        name: proxy-network
